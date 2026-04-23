@@ -26,8 +26,10 @@ const CATEGORIES: {
       "・♡・rules",
       "✦・announcements",
       "🎀・updates",
+      "🌟・featured-contestants",
       "✿・self-roles",
-      "📋・applications",
+      "🎤・contestant-applications",
+      "📋・staff-applications",
       "💌・suggestions",
       "🎫・support",
     ],
@@ -249,11 +251,20 @@ export const command: SlashCommand = {
     const wipe = !(interaction.options.getBoolean("keep_channels") ?? false);
 
     if (wipe) {
-      for (const ch of [...guild.channels.cache.values()]) {
-        if (ch.id === interaction.channelId) continue;
+      // delete EVERY channel including the one the command was run in.
+      // ephemeral defer survives because it uses the interaction webhook, not the channel.
+      const sorted = [...guild.channels.cache.values()].sort((a, b) => {
+        // delete non-categories first, then categories
+        const aIsCat = a.type === ChannelType.GuildCategory ? 1 : 0;
+        const bIsCat = b.type === ChannelType.GuildCategory ? 1 : 0;
+        return aIsCat - bIsCat;
+      });
+      for (const ch of sorted) {
         try {
           await ch.delete("Server setup wipe");
-        } catch {}
+        } catch (e) {
+          console.error("wipe err", ch.name, (e as Error).message);
+        }
       }
     }
 
@@ -268,6 +279,7 @@ export const command: SlashCommand = {
     let selfRoleChannelId: string | undefined;
     let ticketCategoryId: string | undefined;
     let ticketLogChannelId: string | undefined;
+    let staffAppChannelId: string | undefined;
 
     for (const r of [...ROLES].reverse()) {
       try {
@@ -321,7 +333,8 @@ export const command: SlashCommand = {
           created.push(`text: ${t}`);
           if (t.includes("welcome")) welcomeChannelId = ch.id;
           if (t.includes("self-roles")) selfRoleChannelId = ch.id;
-          if (t.includes("applications") && !t.includes("logs")) appChannelId = ch.id;
+          if (t.includes("contestant-applications")) appChannelId = ch.id;
+          if (t.includes("staff-applications")) staffAppChannelId = ch.id;
           if (t.includes("application-logs")) appLogChannelId = ch.id;
           if (t.includes("suggestions") && !t.includes("staff")) suggestionChannelId = ch.id;
           if (t.includes("mod-logs")) modLogChannelId = ch.id;
@@ -360,36 +373,75 @@ export const command: SlashCommand = {
       if (selfRoleChannelId) g.selfRolePanelChannelId = selfRoleChannelId;
       if (ticketCategoryId) g.ticketCategoryId = ticketCategoryId;
       if (ticketLogChannelId) g.ticketLogChannelId = ticketLogChannelId;
+      if (staffAppChannelId) g.staffAppChannelId = staffAppChannelId;
     });
 
-    // Post application panel
+    // Post CONTESTANT application panel
     if (appChannelId) {
       const ch = guild.channels.cache.get(appChannelId) as TextChannel | undefined;
       if (ch) {
         await ch.send({
           embeds: [
             aestheticEmbed({
-              title: "✿ staff applications ✿",
+              title: "˚｡⋆୨୧˚ latent show s2 ˚୨୧⋆｡˚",
               description: [
-                `୨୧ want to join the team?`,
+                `୨୧ ✦ ࣪ ⋆ ࣪ ˖ ⊹ apply for the show ⊹ ˖ ࣪ ⋆ ࣪ ✦ ୨୧`,
                 ``,
-                `click the button below to apply for **staff** or **partner**.`,
-                `you'll be asked a few questions ♡`,
+                `dreamers, performers, the talented & the bold ♡`,
+                `this is your stage ✿`,
                 ``,
-                `୨୧ visit us: ${config.website}`,
+                `**☆ what we're looking for:**`,
+                `⋆˚࿔ singers, dancers, rappers, musicians`,
+                `⋆˚࿔ comedians, actors, magicians`,
+                `⋆˚࿔ visual artists, content creators`,
+                `⋆˚࿔ ANY hidden talent ✦`,
+                ``,
+                `**˗ˏˋ how to apply ˎˊ˗**`,
+                `tap the **🎤 apply as contestant** button below`,
+                `fill in your story, your talent, and why you should win ♡`,
+                ``,
+                `୨୧ official site: **${config.website}**`,
+                ``,
+                `*good luck darling — the spotlight is waiting* ✿`,
               ].join("\n"),
+              thumbnail: guild.iconURL({ size: 256 }) ?? undefined,
             }),
           ],
           components: [
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
-                .setCustomId("apply:staff")
-                .setLabel("✿ apply for staff")
-                .setStyle(ButtonStyle.Primary),
-              new ButtonBuilder()
-                .setCustomId("apply:partner")
-                .setLabel("★ apply for partner")
-                .setStyle(ButtonStyle.Secondary),
+                .setCustomId("apply:contestant")
+                .setLabel("🎤 apply as contestant")
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji("✿"),
+            ),
+          ],
+        });
+      }
+    }
+
+    // Post STAFF application panel
+    if (staffAppChannelId) {
+      const ch = guild.channels.cache.get(staffAppChannelId) as TextChannel | undefined;
+      if (ch) {
+        await ch.send({
+          embeds: [
+            aestheticEmbed({
+              title: "✿ join the team ✿",
+              description: [
+                `୨୧ want to help run the show?`,
+                ``,
+                `apply for **staff** to help moderate, organize events & welcome new members.`,
+                `apply for **partner** if you have a server / community to swap with us ♡`,
+                ``,
+                `୨୧ ${config.website}`,
+              ].join("\n"),
+            }),
+          ],
+          components: [
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder().setCustomId("apply:staff").setLabel("✿ apply for staff").setStyle(ButtonStyle.Primary),
+              new ButtonBuilder().setCustomId("apply:partner").setLabel("★ apply for partner").setStyle(ButtonStyle.Secondary),
             ),
           ],
         });

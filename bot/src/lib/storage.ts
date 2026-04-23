@@ -21,7 +21,10 @@ export type GuildSettings = {
   modLogChannelId?: string;
   staffLogChannelId?: string;
   applicationChannelId?: string;
+  staffAppChannelId?: string;
   applicationLogChannelId?: string;
+  modNotes?: Record<string, { mod: string; note: string; at: number }[]>;
+  muteRoleId?: string;
   suggestionChannelId?: string;
   ticketCategoryId?: string;
   ticketLogChannelId?: string;

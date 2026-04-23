@@ -304,28 +304,48 @@ async function handleButton(interaction: ButtonInteraction) {
   if (!interaction.guild) return;
   const id = interaction.customId;
 
-  if (id === "apply:staff" || id === "apply:partner") {
+  if (id === "apply:staff" || id === "apply:partner" || id === "apply:contestant") {
     const kind = id.split(":")[1]!;
-    const modal = new ModalBuilder()
-      .setCustomId(`appmodal:${kind}`)
-      .setTitle(`${kind} application ✿`)
-      .addComponents(
+    let title = `${kind} application ✿`;
+    let inputs: { id: string; label: string; long?: boolean; req?: boolean }[] = [];
+    if (kind === "contestant") {
+      title = "✿ latent show s2 ✿";
+      inputs = [
+        { id: "name_age", label: "your name (or stage name) & age ♡", req: true },
+        { id: "talent", label: "your talent / category (sing, dance, etc) ✦", req: true },
+        { id: "story", label: "your story — why do you perform? ୨୧", long: true, req: true },
+        { id: "why", label: "why should YOU win latent show s2? ★", long: true, req: true },
+        { id: "social", label: "social / portfolio link (insta, tiktok, yt)", req: false },
+      ];
+    } else if (kind === "staff") {
+      inputs = [
+        { id: "age", label: "how old are you?", req: true },
+        { id: "timezone", label: "timezone & weekly active hours", req: true },
+        { id: "experience", label: "past mod / staff experience", long: true, req: true },
+        { id: "why", label: "why do you want to be staff?", long: true, req: true },
+        { id: "extra", label: "anything else? (optional)", long: true, req: false },
+      ];
+    } else {
+      inputs = [
+        { id: "server", label: "your server name", req: true },
+        { id: "members", label: "member count & invite link", req: true },
+        { id: "about", label: "what is your server about?", long: true, req: true },
+        { id: "why", label: "why partner with us?", long: true, req: true },
+        { id: "extra", label: "anything else? (optional)", long: true, req: false },
+      ];
+    }
+    const modal = new ModalBuilder().setCustomId(`appmodal:${kind}`).setTitle(title);
+    for (const inp of inputs) {
+      modal.addComponents(
         new ActionRowBuilder<TextInputBuilder>().addComponents(
-          new TextInputBuilder().setCustomId("age").setLabel("how old are you?").setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(50),
-        ),
-        new ActionRowBuilder<TextInputBuilder>().addComponents(
-          new TextInputBuilder().setCustomId("timezone").setLabel("timezone & how active are you?").setStyle(TextInputStyle.Short).setRequired(true),
-        ),
-        new ActionRowBuilder<TextInputBuilder>().addComponents(
-          new TextInputBuilder().setCustomId("experience").setLabel("relevant experience").setStyle(TextInputStyle.Paragraph).setRequired(true),
-        ),
-        new ActionRowBuilder<TextInputBuilder>().addComponents(
-          new TextInputBuilder().setCustomId("why").setLabel(`why do you want to be ${kind}?`).setStyle(TextInputStyle.Paragraph).setRequired(true),
-        ),
-        new ActionRowBuilder<TextInputBuilder>().addComponents(
-          new TextInputBuilder().setCustomId("extra").setLabel("anything else? (optional)").setStyle(TextInputStyle.Paragraph).setRequired(false),
+          new TextInputBuilder()
+            .setCustomId(inp.id)
+            .setLabel(inp.label.slice(0, 45))
+            .setStyle(inp.long ? TextInputStyle.Paragraph : TextInputStyle.Short)
+            .setRequired(inp.req ?? false),
         ),
       );
+    }
     await interaction.showModal(modal);
     return;
   }
@@ -399,16 +419,17 @@ async function handleModal(interaction: ModalSubmitInteraction) {
       ? (interaction.guild.channels.cache.get(g.applicationLogChannelId) as TextChannel | undefined)
       : undefined;
     if (!ch) return interaction.reply({ embeds: [errorEmbed("application log channel not found")], ephemeral: true });
-    const fields = ["age", "timezone", "experience", "why", "extra"].map((f) => {
+    const fieldKeys = ["name_age", "talent", "story", "why", "social", "age", "timezone", "experience", "extra", "server", "members", "about"];
+    const fields = fieldKeys.map((f) => {
       let val = "";
       try { val = interaction.fields.getTextInputValue(f); } catch {}
-      return val ? { name: f, value: val.slice(0, 1024), inline: false } : null;
+      return val ? { name: `୨୧ ${f.replace(/_/g, " ")}`, value: val.slice(0, 1024), inline: false } : null;
     }).filter((x): x is { name: string; value: string; inline: boolean } => !!x);
     await ch.send({
       embeds: [
         aestheticEmbed({
-          title: `📥 new ${kind} application`,
-          description: `from <@${interaction.user.id}> (${interaction.user.tag})`,
+          title: kind === "contestant" ? `🎤 new contestant — latent show s2 ✿` : `📥 new ${kind} application`,
+          description: `from <@${interaction.user.id}> (${interaction.user.tag})\n──────────⋆୨୧⋆──────────`,
           fields,
           thumbnail: interaction.user.displayAvatarURL({ size: 128 }),
         }),

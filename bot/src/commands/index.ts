@@ -10,6 +10,8 @@ import { commands as infoCommands } from "./info.js";
 import { commands as automodCommands } from "./automod.js";
 import { commands as communityCommands } from "./community.js";
 import { commands as funCommands } from "./fun.js";
+import { commands as textCommands } from "./text.js";
+import { commands as adminExtraCommands } from "./admin-extra.js";
 import type { SlashCommand } from "../lib/command.js";
 
 export const allCommands: SlashCommand[] = [
@@ -25,4 +27,6 @@ export const allCommands: SlashCommand[] = [
   ...automodCommands,
   ...communityCommands,
   ...funCommands,
+  ...textCommands,
+  ...adminExtraCommands,
 ];
