@@ -23,5 +23,14 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
+- `pnpm --filter @workspace/discord-bot run start` — run the Discord bot
+
+## Discord Bot (`bot/`)
+
+Aesthetic moderation + community bot using `discord.js` v14. Auto-deploys slash commands on startup. Per-guild settings persisted to `bot/data/guilds.json`.
+
+Features: `/setup` (auto-creates aesthetic categories, channels, voice channels, roles), `/config` (autorole, welcome, goodbye, modlog), full moderation (`/ban` `/kick` `/mute` `/warn` `/purge` `/lock` `/slowmode` `/nick`...), utility (`/userinfo` `/serverinfo` `/avatar` `/role` `/website`), reaction roles, sticky messages, welcome/goodbye embeds, and message edit/delete logging.
+
+Required secrets: `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID`. Bot must be invited with `applications.commands` + `bot` scopes and Administrator (or at least Manage Channels/Roles/Server, Kick, Ban, Moderate Members, Manage Messages).
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
