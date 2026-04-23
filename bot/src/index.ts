@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { config } from "./lib/config.js";
 import { allCommands } from "./commands/index.js";
-import { registerEvents } from "./events/handlers.js";
+import { registerEvents, startPeriodicTasks } from "./events/handlers.js";
 import { errorEmbed } from "./lib/embed.js";
 
 const client = new Client({
@@ -65,6 +65,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 registerEvents(client);
+startPeriodicTasks(client);
 
 client.on(Events.Error, (e) => console.error("client err", e));
 process.on("unhandledRejection", (e) => console.error("unhandled", e));

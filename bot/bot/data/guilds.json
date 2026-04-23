@@ -3,5 +3,14 @@
     "warns": {},
     "stickyMessages": {},
     "reactionRoles": {}
+  },
+  "1496765238241132574": {
+    "warns": {},
+    "stickyMessages": {},
+    "reactionRoles": {},
+    "autoRoleId": "1496824363276570706",
+    "welcomeChannelId": "1496824391529533564",
+    "goodbyeChannelId": "1496824391529533564",
+    "modLogChannelId": "1496824410290655322"
   }
 }
