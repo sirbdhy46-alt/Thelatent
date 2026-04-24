@@ -222,7 +222,6 @@ export const command: SlashCommand = {
       // delete EVERY channel including the one the command was run in.
       // ephemeral defer survives because it uses the interaction webhook, not the channel.
       const sorted = [...guild.channels.cache.values()].sort((a, b) => {
-        // delete non-categories first, then categories
         const aIsCat = a.type === ChannelType.GuildCategory ? 1 : 0;
         const bIsCat = b.type === ChannelType.GuildCategory ? 1 : 0;
         return aIsCat - bIsCat;
@@ -231,7 +230,19 @@ export const command: SlashCommand = {
         try {
           await ch.delete("Server setup wipe");
         } catch (e) {
-          console.error("wipe err", ch.name, (e as Error).message);
+          console.warn("wipe skipped", ch.name, (e as Error).message);
+        }
+      }
+
+      // For Community servers, Discord refuses to delete the required `rules`
+      // and `moderator-only` channels. Rename them to fit our aesthetic instead.
+      for (const ch of guild.channels.cache.values()) {
+        if (ch.type !== ChannelType.GuildText) continue;
+        try {
+          if (ch.name === "rules") await ch.setName("・♡・rules");
+          else if (ch.name === "moderator-only") await ch.setName("🛡・mod-chat");
+        } catch (e) {
+          console.warn("rename skipped", ch.name, (e as Error).message);
         }
       }
     }
@@ -379,9 +390,8 @@ export const command: SlashCommand = {
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
                 .setCustomId("apply:contestant")
-                .setLabel("🎤 apply as contestant")
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji("✿"),
+                .setLabel("🎤 apply as contestant ✿")
+                .setStyle(ButtonStyle.Primary),
             ),
           ],
         });
