@@ -489,17 +489,145 @@ export const command: SlashCommand = {
             aestheticEmbed({
               title: `୨୧ welcome to ${guild.name} ୨୧`,
               description: [
-                `୨୧ check out our website: **${config.website}**`,
+                `⋆˚࿔ ✦ ୨୧ welcome darling ୨୧ ✦ ࿔˚⋆`,
                 ``,
-                `head to <#${selfRoleChannelId ?? "0"}> to grab your roles ♡`,
-                `apply for staff in <#${appChannelId ?? "0"}> ✦`,
-                `read the rules and have fun ✿`,
+                `you've just stepped into **the most aesthetic talent show ever** ✿`,
+                `home of dreamers, performers, artists and everyone in between ♡`,
+                ``,
+                `**˗ˏˋ start here ˎˊ˗**`,
+                `୨୧ read the rules → <#${findCh(guild, "rules")}>`,
+                `୨୧ pick your roles → <#${selfRoleChannelId ?? "0"}>`,
+                `୨୧ apply as contestant → <#${appChannelId ?? "0"}>`,
+                `୨୧ open a ticket → <#${findCh(guild, "support")}>`,
+                ``,
+                `୨୧ official site: **${config.website}**`,
+                ``,
+                `*the spotlight is waiting for you* ✦`,
               ].join("\n"),
               thumbnail: guild.iconURL({ size: 256 }) ?? undefined,
             }),
           ],
         });
       }
+    }
+
+    // Auto-fill RULES channel
+    const rulesCh = findChannel(guild, "rules");
+    if (rulesCh) {
+      await rulesCh.send({
+        embeds: [
+          aestheticEmbed({
+            title: "♡ ✿ ⋆ ୨୧ server rules ୨୧ ⋆ ✿ ♡",
+            description: [
+              `୨୧ ─── ⋆ ✦ ⋆ ─── ୨୧`,
+              ``,
+              `**1. ✿ be kind & respectful**`,
+              `no hate, racism, sexism, homophobia, transphobia or bullying. zero tolerance ♡`,
+              ``,
+              `**2. ♡ no nsfw**`,
+              `keep all content sfw — no explicit, gore, or disturbing media of any kind.`,
+              ``,
+              `**3. ✦ no spam or self-promo**`,
+              `don't flood channels, don't dm-advertise. self promo only in designated channels.`,
+              ``,
+              `**4. ୨୧ no drama / vent-bait**`,
+              `keep drama out — use the vent channel or open a ticket if you need support ♡`,
+              ``,
+              `**5. ★ stay in topic**`,
+              `use the right channels for the right vibe. read the channel topics before posting.`,
+              ``,
+              `**6. ⋆ no impersonation**`,
+              `don't pretend to be staff, contestants, or other members.`,
+              ``,
+              `**7. ✿ follow discord tos**`,
+              `you must be **13+** per discord's terms of service.`,
+              ``,
+              `**8. ♡ listen to staff**`,
+              `staff decisions are final. dm a mod or open a ticket to appeal calmly.`,
+              ``,
+              `**9. ✦ keep your tag clean**`,
+              `no offensive nicknames, pfps, or status messages.`,
+              ``,
+              `**10. ୨୧ have fun ♡**`,
+              `this is your space too — make it magical ✿`,
+              ``,
+              `୨୧ ─── ⋆ ✦ ⋆ ─── ୨୧`,
+              `*by being here, you agree to all of the above*`,
+              `**${config.website}**`,
+            ].join("\n"),
+            thumbnail: guild.iconURL({ size: 256 }) ?? undefined,
+          }),
+        ],
+      });
+    }
+
+    // Auto-fill ANNOUNCEMENTS channel
+    const annCh = findChannel(guild, "announcements");
+    if (annCh) {
+      await annCh.send({
+        embeds: [
+          aestheticEmbed({
+            title: "✦ ୨୧ announcements ୨୧ ✦",
+            description: [
+              `୨୧ this channel is for official server-wide updates ♡`,
+              ``,
+              `grab the **🎀 announcements** ping role in <#${selfRoleChannelId ?? "0"}> to never miss anything ✿`,
+              ``,
+              `**stay tuned for:**`,
+              `⋆˚࿔ contestant reveals`,
+              `⋆˚࿔ event schedules`,
+              `⋆˚࿔ live show dates`,
+              `⋆˚࿔ winner announcements ★`,
+              ``,
+              `୨୧ ${config.website}`,
+            ].join("\n"),
+          }),
+        ],
+      });
+    }
+
+    // Auto-fill SUGGESTIONS channel intro
+    const sugCh = findChannel(guild, "suggestions");
+    if (sugCh) {
+      await sugCh.send({
+        embeds: [
+          aestheticEmbed({
+            title: "💌 ୨୧ suggestions ୨୧ 💌",
+            description: [
+              `୨୧ have an idea to make the server better?`,
+              ``,
+              `use **/suggest** to submit your idea — it'll be posted with vote reactions ♡`,
+              `the team reviews suggestions every week ✿`,
+              ``,
+              `*every great show was once just an idea ✦*`,
+            ].join("\n"),
+          }),
+        ],
+      });
+    }
+
+    // Auto-fill FEATURED CONTESTANTS channel
+    const featCh = findChannel(guild, "featured-contestants");
+    if (featCh) {
+      await featCh.send({
+        embeds: [
+          aestheticEmbed({
+            title: "🌟 ୨୧ featured contestants ୨୧ 🌟",
+            description: [
+              `୨୧ ─── ⋆ ✦ ⋆ ─── ୨୧`,
+              ``,
+              `meet the talented dreamers competing this season ♡`,
+              `their stories, their performances, their journeys — all here ✿`,
+              ``,
+              `**˗ˏˋ how to get featured ˎˊ˗**`,
+              `apply in <#${appChannelId ?? "0"}> — accepted contestants get spotlighted here ✦`,
+              ``,
+              `୨୧ ${config.website}`,
+            ].join("\n"),
+            thumbnail: guild.iconURL({ size: 256 }) ?? undefined,
+          }),
+        ],
+      });
     }
 
     await interaction.editReply({
@@ -529,6 +657,17 @@ function slug(name: string) {
     .toLowerCase()
     .replace(/[^\p{L}\p{N}・·-]/gu, "")
     .slice(0, 100);
+}
+
+function findChannel(guild: import("discord.js").Guild, contains: string): TextChannel | undefined {
+  return guild.channels.cache.find(
+    (c) => c.type === ChannelType.GuildText && c.name.includes(contains),
+  ) as TextChannel | undefined;
+}
+
+function findCh(guild: import("discord.js").Guild, contains: string): string {
+  const ch = findChannel(guild, contains);
+  return ch?.id ?? "0";
 }
 
 async function postSelfRolePanel(ch: TextChannel, guild: import("discord.js").Guild) {

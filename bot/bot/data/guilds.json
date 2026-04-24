@@ -34,7 +34,12 @@
     "warns": {},
     "cases": [],
     "caseCounter": 0,
-    "stickyMessages": {},
+    "stickyMessages": {
+      "1496831688918171739": {
+        "content": "hi",
+        "lastMessageId": "1496835275454681158"
+      }
+    },
     "reactionRoles": {},
     "tempbans": [],
     "temproles": [],
@@ -58,7 +63,7 @@
       "window": 10
     },
     "lockdown": false,
-    "ticketCounter": 0,
+    "ticketCounter": 1,
     "customColorRoles": {},
     "autoRoleId": "1496824363276570706",
     "welcomeChannelId": "1496831682412806266",
@@ -71,6 +76,7 @@
     "selfRolePanelChannelId": "1496831688918171739",
     "ticketCategoryId": "1496831733902086164",
     "ticketLogChannelId": "1496831739769913566",
-    "staffAppChannelId": "1496831690520133762"
+    "staffAppChannelId": "1496831690520133762",
+    "counterChannelId": "1496848732229210164"
   }
 }

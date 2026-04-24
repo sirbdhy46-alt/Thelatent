@@ -1,0 +1,18 @@
+services:
+  - type: worker
+    name: latent-show-bot
+    runtime: node
+    rootDir: bot
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm run start
+    autoDeploy: true
+    envVars:
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: NODE_VERSION
+        value: "20"
