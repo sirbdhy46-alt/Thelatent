@@ -30,6 +30,7 @@ export type GuildSettings = {
   ticketLogChannelId?: string;
   selfRolePanelChannelId?: string;
   counterChannelId?: string;
+  jimmyChannelId?: string;
   warns: Record<string, { reason: string; mod: string; at: number }[]>;
   cases: ModCase[];
   caseCounter: number;

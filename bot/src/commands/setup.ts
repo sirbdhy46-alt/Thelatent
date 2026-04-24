@@ -40,6 +40,7 @@ const CATEGORIES: {
       "🍓・vent",
       "💌・suggestions",
       "🤖・bot-commands",
+      "🌸・jimmy-chat",
     ],
     voice: [],
   },
@@ -259,6 +260,7 @@ export const command: SlashCommand = {
     let ticketCategoryId: string | undefined;
     let ticketLogChannelId: string | undefined;
     let staffAppChannelId: string | undefined;
+    let jimmyChannelId: string | undefined;
 
     for (const r of [...ROLES].reverse()) {
       try {
@@ -319,6 +321,7 @@ export const command: SlashCommand = {
           if (t.includes("mod-logs")) modLogChannelId = ch.id;
           if (t.includes("staff-logs")) staffLogChannelId = ch.id;
           if (t.includes("ticket-logs")) ticketLogChannelId = ch.id;
+          if (t.includes("jimmy")) jimmyChannelId = ch.id;
         }
       }
       for (const v of cat.voice) {
@@ -353,6 +356,7 @@ export const command: SlashCommand = {
       if (ticketCategoryId) g.ticketCategoryId = ticketCategoryId;
       if (ticketLogChannelId) g.ticketLogChannelId = ticketLogChannelId;
       if (staffAppChannelId) g.staffAppChannelId = staffAppChannelId;
+      if (jimmyChannelId) g.jimmyChannelId = jimmyChannelId;
     });
 
     // Post CONTESTANT application panel
@@ -464,6 +468,31 @@ export const command: SlashCommand = {
       try { await ch.send(payload); console.log(`[setup] posted ${label} → #${ch.name}`); }
       catch (e) { console.error(`[setup] failed to post ${label} in #${ch.name}:`, (e as Error).message); }
     };
+
+    // Post JIMMY intro
+    if (jimmyChannelId) {
+      const ch = guild.channels.cache.get(jimmyChannelId) as TextChannel | undefined;
+      await safeSend("jimmy intro", ch, {
+        embeds: [
+          aestheticEmbed({
+            title: "˚｡⋆୨୧˚ chat with jimmy ˚୨୧⋆｡˚",
+            description: [
+              `୨୧ ✦ ࣪ ⋆ ࣪ ˖ ⊹ hi i'm jimmy ⊹ ˖ ࣪ ⋆ ࣪ ✦ ୨୧`,
+              ``,
+              `i'm the ai host of latent show s2 ✿`,
+              `talk to me about anything! the show, your day, your dreams ♡`,
+              ``,
+              `**˗ˏˋ how to chat ˎˊ˗**`,
+              `⋆˚࿔ just type a message in this channel ✿`,
+              `⋆˚࿔ or @mention me anywhere in the server ✦`,
+              `⋆˚࿔ or use \`!ask <your question>\` ୨୧`,
+              ``,
+              `i remember our last few messages ♡ use \`!forgetme\` to start fresh`,
+            ].join("\n"),
+          }),
+        ],
+      });
+    }
 
     // Post welcome embed in welcome channel
     if (welcomeChannelId) {

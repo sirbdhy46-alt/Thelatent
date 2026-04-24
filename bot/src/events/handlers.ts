@@ -25,6 +25,9 @@ import { aestheticEmbed, errorEmbed, successEmbed } from "../lib/embed.js";
 import { config } from "../lib/config.js";
 import { allGuildIds, getGuild, updateGuild } from "../lib/storage.js";
 import { snipeCache, editSnipeCache } from "../lib/snipe.js";
+import { handlePrefix } from "../lib/prefix.js";
+import { askJimmy } from "../lib/jimmy.js";
+import { tryReplaceEmojis } from "../lib/emoji.js";
 
 const recentJoins = new Map<string, number[]>(); // antiraid
 const spamTracker = new Map<string, number[]>(); // userId-channelId -> timestamps
@@ -147,11 +150,36 @@ export function registerEvents(client: Client) {
     }).catch(() => {});
   });
 
-  // Sticky messages + AFK + automod
+  // Sticky messages + AFK + automod + prefix + jimmy + emojis
   const stickyDebounce = new Map<string, NodeJS.Timeout>();
   client.on(Events.MessageCreate, async (message: Message) => {
     if (!message.guild || message.author.bot) return;
     const g = getGuild(message.guild.id);
+
+    // ── prefix ! commands ──
+    if (message.content.startsWith("!")) {
+      const handled = await handlePrefix(message);
+      if (handled) return;
+    }
+
+    // ── jimmy ai chat: in #jimmy-chat OR when bot is mentioned ──
+    const inJimmyChannel = g.jimmyChannelId && message.channelId === g.jimmyChannelId;
+    const mentionsBot = message.mentions.users.has(message.client.user.id);
+    if ((inJimmyChannel || mentionsBot) && message.content.trim().length > 0) {
+      const prompt = message.content.replace(/<@!?\d+>/g, "").trim();
+      if (prompt.length > 0) {
+        if ("sendTyping" in message.channel) await message.channel.sendTyping().catch(() => {});
+        const reply = await askJimmy(message.author.id, message.member?.displayName ?? message.author.username, prompt);
+        await message.reply({
+          embeds: [aestheticEmbed({ description: reply, footer: "✿ jimmy · ai host of latent show s2" })],
+          allowedMentions: { repliedUser: false },
+        }).catch(() => {});
+        return;
+      }
+    }
+
+    // ── custom emoji replacer (:name: → server emoji via webhook) ──
+    if (await tryReplaceEmojis(message)) return;
 
     // AFK back
     if (g.afk[message.author.id]) {

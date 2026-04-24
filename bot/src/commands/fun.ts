@@ -1,6 +1,8 @@
 import { SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../lib/command.js";
 import { aestheticEmbed } from "../lib/embed.js";
+import { getActionGif } from "../lib/gifs.js";
+import { askJimmy, clearJimmyMemory } from "../lib/jimmy.js";
 
 const r = (max: number) => Math.floor(Math.random() * max);
 const pick = <T>(arr: T[]) => arr[r(arr.length)]!;
@@ -59,7 +61,8 @@ export const funCmd: SlashCommand = {
     const verbs: Record<string, string> = { hug: "hugs", pat: "pats", slap: "slaps", kiss: "kisses", cuddle: "cuddles", wave: "waves at", blush: "blushes at", bonk: "bonks", poke: "pokes", highfive: "high-fives" };
     if (verbs[sub]) {
       const u = i.options.getUser("user", true);
-      return i.reply({ embeds: [aestheticEmbed({ description: `<@${i.user.id}> ${verbs[sub]} <@${u.id}> ✿` })] });
+      const gif = await getActionGif(sub).catch(() => "");
+      return i.reply({ embeds: [aestheticEmbed({ description: `<@${i.user.id}> ${verbs[sub]} <@${u.id}> ✿`, image: gif || undefined })] });
     }
     if (sub === "quote") {
       const qs = ["and still, i rise. — maya angelou", "stars can't shine without darkness ✦", "you are made of stardust ⋆˚࿔", "be soft. do not let the world make you hard ♡", "she remembered who she was, and the game changed.", "the universe is on your side ✿", "everything you can imagine is real. — picasso"];
@@ -97,4 +100,29 @@ export const funCmd: SlashCommand = {
   },
 };
 
-export const commands = [funCmd];
+export const askCmd: SlashCommand = {
+  data: new SlashCommandBuilder()
+    .setName("ask")
+    .setDescription("✿ chat with jimmy — ai host of latent show s2 ♡")
+    .addStringOption((o) => o.setName("message").setDescription("your message").setRequired(true)),
+  async execute(i) {
+    await i.deferReply();
+    const prompt = i.options.getString("message", true);
+    const reply = await askJimmy(i.user.id, i.member?.user.username ?? i.user.username, prompt);
+    return i.editReply({
+      embeds: [aestheticEmbed({ description: reply, footer: "✿ jimmy · ai host of latent show s2" })],
+    });
+  },
+};
+
+export const forgetCmd: SlashCommand = {
+  data: new SlashCommandBuilder()
+    .setName("forgetme")
+    .setDescription("✿ make jimmy forget your conversation"),
+  async execute(i) {
+    clearJimmyMemory(i.user.id);
+    return i.reply({ embeds: [aestheticEmbed({ description: "jimmy forgot your conversation ♡" })], ephemeral: true });
+  },
+};
+
+export const commands = [funCmd, askCmd, forgetCmd];
