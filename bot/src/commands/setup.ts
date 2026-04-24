@@ -20,81 +20,49 @@ const CATEGORIES: {
   voice: string[];
 }[] = [
   {
-    name: "⋆｡˚ ☁︎ ︵ welcome ︵ ☁︎ ˚｡⋆",
+    name: "⋆｡˚ ☁︎ welcome ☁︎ ˚｡⋆",
     text: [
       "⋆˚࿔・welcome",
       "・♡・rules",
       "✦・announcements",
-      "🎀・updates",
-      "🌟・featured-contestants",
       "✿・self-roles",
       "🎤・contestant-applications",
       "📋・staff-applications",
-      "💌・suggestions",
       "🎫・support",
     ],
     voice: [],
   },
   {
-    name: "˚ ༘ ೀ⋆｡˚ ・ chat ・ ˚｡⋆ ೀ ༘ ˚",
+    name: "˚ ༘ ೀ chat ೀ ༘ ˚",
     text: [
       "💌・general",
-      "🌸・chat-2",
       "𓂃 ࣪˖・media",
-      "✧・selfies",
-      "ᡣ𐭩・pets",
       "🍓・vent",
-      "🎨・art",
-      "🌙・dreams",
-      "📚・books",
-      "🎵・music",
-      "🍰・food",
-      "🌈・positivity",
-      "🎮・gaming-chat",
-      "🎬・movies-tv",
-      "🤖・bot-spam",
-      "🏷・counting",
-      "💭・confessions",
+      "💌・suggestions",
+      "🤖・bot-commands",
     ],
     voice: [],
   },
   {
-    name: "✦ ˚ · . voice channels . · ˚ ✦",
-    text: ["🎀・vc-chat", "🎤・vc-music"],
+    name: "✦ ˚ voice ˚ ✦",
+    text: [],
     voice: [
       "˗ˏˋ ♡ general ♡ ˎˊ˗",
-      "⋆ ˚｡⋆୨୧˚ chill ˚୨୧⋆｡˚ ⋆",
-      "🎧・lofi lounge",
-      "🌙・late night",
-      "✦・hangout",
-      "🎮・gaming 1",
-      "🎮・gaming 2",
-      "🎬・movie night",
-      "🍵・study room",
-      "📚・library (silent)",
-      "🎀・girls only",
-      "👥・duo",
-      "👥・trio",
-      "🎤・karaoke",
-      "🎵・music room",
-      "🌸・private 1",
-      "🌸・private 2",
-      "🌸・private 3",
+      "🎧・chill",
+      "🎮・gaming",
       "afk ‧₊˚",
     ],
   },
   {
-    name: "₊˚ʚ ᗢ・ staff・ᗢ ɞ˚₊",
+    name: "₊˚ʚ staff ɞ˚₊",
     text: [
       "🛡・mod-chat",
       "📋・mod-logs",
       "📊・staff-logs",
       "📥・application-logs",
-      "💡・staff-suggestions",
-      "📝・mod-commands",
       "🎫・ticket-logs",
     ],
-    voice: ["staff vc 🎀", "mod meeting 🛡"],
+    voice: ["staff vc 🎀"],
   },
 ];
 
@@ -480,11 +448,17 @@ export const command: SlashCommand = {
       });
     }
 
+    // helper that swallows errors so a single failed send doesn't abort the rest
+    const safeSend = async (label: string, ch: TextChannel | undefined, payload: any) => {
+      if (!ch) { console.warn(`[setup] no channel for ${label}`); return; }
+      try { await ch.send(payload); console.log(`[setup] posted ${label} → #${ch.name}`); }
+      catch (e) { console.error(`[setup] failed to post ${label} in #${ch.name}:`, (e as Error).message); }
+    };
+
     // Post welcome embed in welcome channel
     if (welcomeChannelId) {
       const ch = guild.channels.cache.get(welcomeChannelId) as TextChannel | undefined;
-      if (ch) {
-        await ch.send({
+      await safeSend("welcome", ch, {
           embeds: [
             aestheticEmbed({
               title: `୨୧ welcome to ${guild.name} ୨୧`,
@@ -508,13 +482,11 @@ export const command: SlashCommand = {
             }),
           ],
         });
-      }
     }
 
     // Auto-fill RULES channel
     const rulesCh = findChannel(guild, "rules");
-    if (rulesCh) {
-      await rulesCh.send({
+    await safeSend("rules", rulesCh, {
         embeds: [
           aestheticEmbed({
             title: "♡ ✿ ⋆ ୨୧ server rules ୨୧ ⋆ ✿ ♡",
@@ -559,12 +531,10 @@ export const command: SlashCommand = {
           }),
         ],
       });
-    }
 
     // Auto-fill ANNOUNCEMENTS channel
     const annCh = findChannel(guild, "announcements");
-    if (annCh) {
-      await annCh.send({
+    await safeSend("announcements", annCh, {
         embeds: [
           aestheticEmbed({
             title: "✦ ୨୧ announcements ୨୧ ✦",
@@ -584,12 +554,10 @@ export const command: SlashCommand = {
           }),
         ],
       });
-    }
 
     // Auto-fill SUGGESTIONS channel intro
     const sugCh = findChannel(guild, "suggestions");
-    if (sugCh) {
-      await sugCh.send({
+    await safeSend("suggestions", sugCh, {
         embeds: [
           aestheticEmbed({
             title: "💌 ୨୧ suggestions ୨୧ 💌",
@@ -604,31 +572,7 @@ export const command: SlashCommand = {
           }),
         ],
       });
-    }
 
-    // Auto-fill FEATURED CONTESTANTS channel
-    const featCh = findChannel(guild, "featured-contestants");
-    if (featCh) {
-      await featCh.send({
-        embeds: [
-          aestheticEmbed({
-            title: "🌟 ୨୧ featured contestants ୨୧ 🌟",
-            description: [
-              `୨୧ ─── ⋆ ✦ ⋆ ─── ୨୧`,
-              ``,
-              `meet the talented dreamers competing this season ♡`,
-              `their stories, their performances, their journeys — all here ✿`,
-              ``,
-              `**˗ˏˋ how to get featured ˎˊ˗**`,
-              `apply in <#${appChannelId ?? "0"}> — accepted contestants get spotlighted here ✦`,
-              ``,
-              `୨୧ ${config.website}`,
-            ].join("\n"),
-            thumbnail: guild.iconURL({ size: 256 }) ?? undefined,
-          }),
-        ],
-      });
-    }
 
     await interaction.editReply({
       embeds: [
